@@ -1,4 +1,4 @@
-import * as cryptoService from "../services/CryptoService.js";
+import * as cryptoService from "../services/cryptoService.js";
 
 export async function balance(req, res) {
   try {

@@ -47,3 +47,61 @@ export async function sendTransaction(networkKey, toAddress, amount) {
 
   return txResponse.hash;
 }
+
+export async function getCryptoPrice(symbols = [], availableCoins = {}) {
+  const invalidSymbols = symbols.filter((symbol) => !availableCoins[symbol]);
+  if (invalidSymbols.length > 0) {
+    throw {
+      message: `Symbols not found: ${invalidSymbols.join(", ")}`,
+      status: 404,
+    };
+  }
+  const urlToFetch = symbols
+    .filter((symbol) => availableCoins[symbol])
+    .map((symbol) => ({
+      symbol,
+      url: availableCoins[symbol],
+    }));
+
+  try {
+    
+    const responses = await Promise.all(
+      urlToFetch.map((item) => fetch(item.url))
+    );
+
+    
+    responses.forEach((res, i) => {
+      if (!res.ok) {
+        throw {
+          message: `Failed to fetch ${urlToFetch[i].url} - status ${res.status}`,
+          status: res.status,
+        };
+      }
+    });
+
+    
+    const jsonData = await Promise.all(responses.map((res) => res.json()));
+
+    const result = {};
+    jsonData.forEach((data, index) => {
+      const symbol = urlToFetch[index].symbol;
+
+      
+      if (!data || !data.ticker) {
+        throw {
+          message: `No ticker data found for symbol ${symbol}`,
+          status: 404,
+        };
+      }
+
+      result[symbol] = data.ticker;
+    });
+
+    return result;
+  } catch (error) {
+    throw {
+      message: error.message || "Failed to fetch crypto prices",
+      status: error.status || 500,
+    };
+  }
+}

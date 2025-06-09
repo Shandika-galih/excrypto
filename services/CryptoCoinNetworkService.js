@@ -1,0 +1,27 @@
+
+import CryptoCoinNetwork from '../models/CryptoCoinNetwork.js';
+
+export const getCryptoCoinNetworkById = async(id) => {
+    return await CryptoCoinNetwork.findOne({where : {
+        uuid : id,
+    }});
+}
+
+export const deleteCryptoCoinNetwork = async(id) => {
+    return await CryptoCoinNetwork.destroy({where:{uuid : id}});
+}
+
+export const saveCryptoCoinNetwork = async (name,kode, admin_fee, logoPath, rpc_url, status, chain_id, coin_id) => {
+    const cryptoCoin = await CryptoCoinNetwork.create({
+        name : name,
+        kode : kode,
+        admin_fee : parseFloat(admin_fee),
+        logo : logoPath ,
+        rpc_url : rpc_url,
+        status : status,
+        chain_id : chain_id,
+        coin_id : coin_id
+    });
+
+    return cryptoCoin;
+}

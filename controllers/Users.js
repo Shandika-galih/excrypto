@@ -4,7 +4,7 @@ import argon2 from "argon2";
 export const getUsers = async (req, res) => {
   try {
     const response = await Users.findAll();
-    res.status(300).json(response);
+    res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }

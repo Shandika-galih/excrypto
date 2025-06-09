@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/users', auth, admin, getUsers);
 router.get('/users/:id',auth ,getUserById);
 router.post('/users',createUser);
-router.patch('/users/:id', auth ,updateUser);
+router.patch('/users/:id' ,updateUser);
 router.delete('/users/:id', auth, deleteUser);
 
 

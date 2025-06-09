@@ -1,13 +1,12 @@
-import {Sequelize, UUID} from 'sequelize';
+import {Sequelize} from 'sequelize';
 import db from '../config/Database.js'
-
 
 const {DataTypes} = Sequelize;
 
-const Users = db.define('users',{
+const CryptoCoin = db.define('CryptoCoin',{
 
     uuid:{
-        type:DataTypes.STRING,
+        type:DataTypes.UUID,
         defaultValue:DataTypes.UUIDV4,
         allowNull:false,
         validate:{
@@ -22,34 +21,40 @@ const Users = db.define('users',{
             len:[3,100]
         }
     },
-    email:{
+    kode:{
         type:DataTypes.STRING,
         allowNull:false,
-        unique : true,
-        validate:{
-            notEmpty:true,
-            isEmail:true
-        }
-    },
-    password:{
-        type:DataTypes.STRING,
-        allowNull:false,
+        unique:true,
         validate:{
             notEmpty:true,
         }
     },
-    role:{
+    admin_fee:{
+        type:DataTypes.DECIMAL,
+        allowNull:false,
+        validate:{
+            notEmpty:true,
+        }
+    },
+    logo:{
+        type:DataTypes.STRING,
+        allowNull:false,
+        validate:{
+            notEmpty:true,
+        }
+    },
+    wss_indodax_price_code : {
         type : DataTypes.STRING,
-        allowNull: false,
-        validate:{
-            notEmpty:true
-        }
+        allowNull : true,
+        unique: true
+    },
+    api_indodax_price_code :{
+        type: DataTypes.STRING,
+        allowNull:true,
+        unique:true
     }
     
-    
-    
 },{
-    freezeTableName:true
+    tableName:"crypto_coin_tbl"
 })
-
-export default Users;
+export default CryptoCoin;

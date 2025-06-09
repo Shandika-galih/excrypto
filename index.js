@@ -8,6 +8,12 @@ import db from './config/Database.js';
 import AuthRoute from './routes/AuthRoute.js';
 import SequelizeStore from 'connect-session-sequelize';
 import CryptoRoute from './routes/CryptoRoute.js';
+import CryptoCoinRoute from './routes/CryptoCoinRoute.js'; 
+import TransactionRoute from './routes/TransactionRoute.js';
+import BankRoute from './routes/BankRoute.js';
+import PaymentMethodRoute from './routes/PaymentMethodRoute.js';
+import CryptoCoinNetworkRoute from './routes/CryptoCoinNetworkRoute.js';
+import path from 'path';
 
 dotenv.config();
 
@@ -20,9 +26,11 @@ const store = new sessionStore({
 });
 
 // (async()=>{
-//   await db.sync();
+//   await db.sync({alter:true});
 
 // })();
+
+console.log(db.models);
 
 app.use(session({
     secret:process.env.SESS_SECRET,
@@ -37,17 +45,27 @@ app.use(session({
 app.use(
   cors({
     credentials: true,
-    origin : '*'
+    origin : ['http://localhost:5173', 'https://api.sandbox.midtrans.com', 'https://api.midtrans.com/']
+    // origin : "*"
   })
 );
 app.use(express.json());
+app.use(express.urlencoded());
 app.use(UserRoute);
 app.use(ProductRoute);
 app.use(AuthRoute);
 app.use(CryptoRoute);
+app.use(CryptoCoinRoute);
+app.use(TransactionRoute);
+app.use(BankRoute);
+app.use(PaymentMethodRoute);
+app.use(CryptoCoinNetworkRoute);
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // store.sync();
 
 app.listen(process.env.APP_PORT, () => {
   console.log("Server up and running");
 });
+
+
