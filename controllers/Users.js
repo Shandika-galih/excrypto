@@ -1,4 +1,5 @@
 import Users from "../models/UserModel.js";
+import { getUsersService } from "../services/UserService.js";
 import argon2 from "argon2";
 
 export const getUsers = async (req, res) => {
@@ -100,5 +101,19 @@ export const deleteUser = async (req, res) => {
     res.status(200).json({ msg: "User Deleted" });
   } catch (error) {
     res.status(400).json({ msg: error.message });
+  }
+};
+
+export const getUsersAdmin = async (req, res) => {
+  try {
+    const result = await getUsersService(req.query); // Memanggil service dengan parameter query
+
+    res.status(200).json(result); // Mengirimkan hasil response
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
+    res.status(500).json({
+      msg: "Internal server error",
+      error: error.message,
+    });
   }
 };

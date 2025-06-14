@@ -3,6 +3,7 @@ import {
   deleteCryptoCoin,
   getCryptoCoinById,
   saveCryptoCoin,
+  getCryptoCoinsService,
 } from "../services/CryptoCoinService.js";
 import CryptoCoin from "../models/CryptoCoin.js";
 import fs from "fs/promises";
@@ -30,10 +31,15 @@ export async function getCryptoTicker(req, res) {
 
 export const getCryptoCoins = async (req, res) => {
   try {
-    const response = await CryptoCoin.findAll();
-    res.status(200).json(response);
+    const result = await getCryptoCoinsService(req.query); // Memanggil service dengan parameter query
+
+    res.status(200).json(result); // Mengirimkan hasil response
   } catch (error) {
-    res.status(error.status || 500).json({ msg: error.message });
+    console.error("Error fetching crypto coins:", error.message);
+    res.status(500).json({
+      msg: "Internal server error",
+      error: error.message,
+    });
   }
 };
 
@@ -46,33 +52,30 @@ export const getCryptoCoin = async (req, res) => {
   }
 };
 export const deleteCryptoCoinById = async (req, res) => {
-  try{
-    const {uuid} = req.params;
+  try {
+    const { uuid } = req.params;
     const coin = await getCryptoCoinById(uuid);
 
-    if(!coin){
-      return res.status(404).json({msg : 'Crypto Coin Not Found'});
-
+    if (!coin) {
+      return res.status(404).json({ msg: "Crypto Coin Not Found" });
     }
 
-
-    if(coin.logo){
-      try{
+    if (coin.logo) {
+      try {
         await fs.unlink(coin.logo);
-
-      }catch(error){
-         throw new Error(`Failed to delete logo file: ${error.message}`);
-
+      } catch (error) {
+        throw new Error(`Failed to delete logo file: ${error.message}`);
       }
     }
 
     await deleteCryptoCoin(uuid);
     res.status(200).json({
-      msg: 'Crpto coin deleted successfully'
+      msg: "Crpto coin deleted successfully",
     });
-
-  }catch(error){
-    res.status(500).json({msg : "Error deleting crypto coin :", error: error.message});
+  } catch (error) {
+    res
+      .status(500)
+      .json({ msg: "Error deleting crypto coin :", error: error.message });
   }
 };
 
@@ -88,7 +91,13 @@ export const createCryptoCoin = async (req, res) => {
     }
 
     const logoPath = file.path;
-    const newCoin = await saveCryptoCoin({ name, kode, admin_fee, logoPath, coid_id});
+    const newCoin = await saveCryptoCoin({
+      name,
+      kode,
+      admin_fee,
+      logoPath,
+      coid_id,
+    });
     res.status(200).json({
       msg: "Crypto coin created",
       data: newCoin,
@@ -99,28 +108,25 @@ export const createCryptoCoin = async (req, res) => {
 };
 
 export const updateCryptoCoin = async (req, res) => {
-  try{
-    const {uuid} = req.params;
+  try {
+    const { uuid } = req.params;
     // return res.status(200).json({msg : "test",data: req.body});
-    const {name, kode, admin_fee} = req.body;
+    const { name, kode, admin_fee } = req.body;
     console.log("body :", req.body);
     const file = req.file;
 
-    
-
     const coin = await getCryptoCoinById(uuid);
-    if(!coin){
-      return res.status(404).json({msg : 'Crypto coin not found'});
+    if (!coin) {
+      return res.status(404).json({ msg: "Crypto coin not found" });
     }
 
     let warning = null;
 
-    if(file){
-      if(coin.logo){
-        try{
+    if (file) {
+      if (coin.logo) {
+        try {
           await fs.unlink(coin.logo);
-
-        }catch(err){
+        } catch (err) {
           warning = `Failed to delete logo file: ${err.message}`;
         }
       }
@@ -134,15 +140,13 @@ export const updateCryptoCoin = async (req, res) => {
     await coin.save();
 
     res.status(200).json({
-      msg : 'Crypto coin updated successfully',
+      msg: "Crypto coin updated successfully",
       data: coin,
-      ...(warning && {warning})
-
-    })
-
-
-  }catch(err){
-    res.status(err.status || 500).json({msg : 'Server error', error : err.message});
-
+      ...(warning && { warning }),
+    });
+  } catch (err) {
+    res
+      .status(err.status || 500)
+      .json({ msg: "Server error", error: err.message });
   }
-}
+};
