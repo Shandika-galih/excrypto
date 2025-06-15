@@ -19,22 +19,8 @@ import TransactionRoute from "./routes/TransactionRoute.js";
 import BankRoute from "./routes/BankRoute.js";
 import PaymentMethodRoute from "./routes/PaymentMethodRoute.js";
 import CryptoCoinNetworkRoute from "./routes/CryptoCoinNetworkRoute.js";
-import chatRoutes from "./routes/ChatRoutes.js";
-import dotenv from 'dotenv';
-import UserRoute from './routes/UserRoute.js';
-import ProductRoute from './routes/ProductRoute.js';  
-import db from './config/Database.js';
-import AuthRoute from './routes/AuthRoute.js';
-import SequelizeStore from 'connect-session-sequelize';
-import CryptoRoute from './routes/CryptoRoute.js';
-import CryptoCoinRoute from './routes/CryptoCoinRoute.js'; 
-import TransactionRoute from './routes/TransactionRoute.js';
-import BankRoute from './routes/BankRoute.js';
-import PaymentMethodRoute from './routes/PaymentMethodRoute.js';
-import CryptoCoinNetworkRoute from './routes/CryptoCoinNetworkRoute.js';
 import CustomerCryptoCoinRoute from './routes/Customer/CryptoCoinRoute.js';
-
-import path from 'path';
+import ChatRoutes from './routes/ChatRoutes.js'
 
 dotenv.config();
 
@@ -69,6 +55,7 @@ app.use(
       "http://localhost:5173",
       "https://api.sandbox.midtrans.com",
       "https://api.midtrans.com",
+      "https://instacrypto.shop"
     ],
   })
 );
@@ -86,7 +73,9 @@ app.use(TransactionRoute);
 app.use(BankRoute);
 app.use(PaymentMethodRoute);
 app.use(CryptoCoinNetworkRoute);
-app.use("/api/chat", chatRoutes);
+app.use("/api/chat", ChatRoutes);
+app.use(CustomerCryptoCoinRoute);
+
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);

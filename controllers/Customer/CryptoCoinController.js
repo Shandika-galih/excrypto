@@ -9,7 +9,7 @@ export const getCryptoCoin = async (req, res) => {
       where: {
         status: "active",
       },
-      attributes: ["id", "uuid", "name", "kode", "admin_fee", "logo", "status"],
+      attributes: ["id", "uuid", "name", "kode", "admin_fee", "logo", "coin_id","status"],
       include: {
         model: CryptoCoin,
         attributes: [
