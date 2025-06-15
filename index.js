@@ -13,6 +13,8 @@ import TransactionRoute from './routes/TransactionRoute.js';
 import BankRoute from './routes/BankRoute.js';
 import PaymentMethodRoute from './routes/PaymentMethodRoute.js';
 import CryptoCoinNetworkRoute from './routes/CryptoCoinNetworkRoute.js';
+import CustomerCryptoCoinRoute from './routes/Customer/CryptoCoinRoute.js';
+
 import path from 'path';
 
 dotenv.config();
@@ -25,10 +27,10 @@ const store = new sessionStore({
   db:db
 });
 
-// (async()=>{
-//   await db.sync({alter:true});
+(async()=>{
+  await db.sync({alter:true});
 
-// })();
+})();
 
 console.log(db.models);
 
@@ -60,6 +62,7 @@ app.use(TransactionRoute);
 app.use(BankRoute);
 app.use(PaymentMethodRoute);
 app.use(CryptoCoinNetworkRoute);
+app.use(CustomerCryptoCoinRoute);
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // store.sync();

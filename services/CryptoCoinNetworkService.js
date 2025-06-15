@@ -1,4 +1,5 @@
 
+import CryptoCoin from '../models/CryptoCoin.js';
 import CryptoCoinNetwork from '../models/CryptoCoinNetwork.js';
 
 export const getCryptoCoinNetworkById = async(id) => {
@@ -24,4 +25,18 @@ export const saveCryptoCoinNetwork = async (name,kode, admin_fee, logoPath, rpc_
     });
 
     return cryptoCoin;
+}
+
+export const getCryptoCoinNetworkService = async() =>{
+    try{
+
+        return await CryptoCoinNetwork.findAll({
+            include : [
+                {model : CryptoCoin}
+            ]
+        });
+
+    }catch(error){
+        throw error;
+    }
 }

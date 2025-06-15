@@ -2,14 +2,14 @@ import {
   deleteCryptoCoinNetwork,
   getCryptoCoinNetworkById,
   saveCryptoCoinNetwork,
+  getCryptoCoinNetworkService
 } from "../services/CryptoCoinNetworkService.js";
-import CryptoCoinNetwork from "../models/CryptoCoinNetwork.js";
 import fs from "fs/promises";
 
 
 export const getCryptoCoinNetworks = async (req, res) => {
   try {
-    const response = await CryptoCoinNetwork.findAll();
+    const response = await getCryptoCoinNetworkService();
     res.status(200).json(response);
   } catch (error) {
     res.status(error.status || 500).json({ msg: error.message });
