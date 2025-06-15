@@ -31,6 +31,13 @@ const TransactionModel = db.define(
         notEmpty: true,
       },
     },
+    coin_amount: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
     total_pembayaran: {
       type: DataTypes.INTEGER,
       allowNull: false,
