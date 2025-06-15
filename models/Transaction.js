@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 import db from "../config/Database.js";
-import CryptoCoinNetwork from '../models/CryptoCoinNetwork.js';
+import CryptoCoinNetwork from "../models/CryptoCoinNetwork.js";
 import Users from "./UserModel.js";
 import Bank from "./Bank.js";
 
@@ -32,7 +32,7 @@ const TransactionModel = db.define(
       },
     },
     coin_amount: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(18, 8),
       allowNull: false,
       validate: {
         notEmpty: true,
@@ -74,29 +74,26 @@ const TransactionModel = db.define(
         isDate: true,
       },
     },
-    blockchain_tx_hash : {
-      type : DataTypes.STRING,
-      allowNull : true
-
+    blockchain_tx_hash: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
-    reciever_wallet_address:{
-      type : DataTypes.STRING,
-      allowNull : false,
-      validate : {
-        notEmpty : true
-      }
+    reciever_wallet_address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
     },
-    midtrans_ct_response : {
-      type : DataTypes.JSON,
-      allowNull : true
-    }
+    midtrans_ct_response: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
   },
   {
     tableName: "transaction_tbl",
   }
 );
-
-
 
 TransactionModel.belongsTo(CryptoCoinNetwork, {
   foreignKey: "coin_network_id",
@@ -106,20 +103,16 @@ TransactionModel.belongsTo(CryptoCoinNetwork, {
 
 TransactionModel.belongsTo(Users, {
   foreignKey: "email_user",
-  targetKey : 'email',
+  targetKey: "email",
   onDelete: "CASCADE",
   onUpdate: "CASCADE",
 });
 
 TransactionModel.belongsTo(Bank, {
-  foreignKey : 'payment_type_id',
-  targetKey : "id",
-  onDelete : 'SET NULL',
-  onUpdate : 'CASCADE'
-
+  foreignKey: "payment_type_id",
+  targetKey: "id",
+  onDelete: "SET NULL",
+  onUpdate: "CASCADE",
 });
-
-
-
 
 export default TransactionModel;

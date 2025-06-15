@@ -16,6 +16,7 @@ export const createTransactionServiceQris = async (req) => {
     total_pembayaran,
     payment_type_id,
     reciever_wallet_address,
+    coin_amount,
   } = req.body;
   try {
     const bank = await Bank.findOne({
@@ -32,6 +33,7 @@ export const createTransactionServiceQris = async (req) => {
       total_pembayaran: total_pembayaran,
       payment_type_id: payment_type_id,
       reciever_wallet_address: reciever_wallet_address,
+      coin_amount: coin_amount,
     });
     if (!transaction) {
       throw new Error("Failed to create transactions");
