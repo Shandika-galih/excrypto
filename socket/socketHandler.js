@@ -1,5 +1,5 @@
 // socket/socketHandler.js
-import { saveMessage } from "../services/chatService.js";
+import { saveMessage } from "../services/ChatService.js";
 
 export const socketHandler = (socket, io) => {
   socket.on("joinRoom", (roomId) => {

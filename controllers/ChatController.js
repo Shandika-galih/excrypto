@@ -1,4 +1,4 @@
-import { getChatHistoryByRoom } from "../services/chatService.js";
+import { getChatHistoryByRoom } from "../services/ChatService.js";
 
 export const getChatHistory = async (req, res) => {
   const { roomId } = req.params;
