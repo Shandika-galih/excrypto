@@ -120,6 +120,10 @@ TransactionModel.belongsTo(Bank, {
 });
 
 
+// (async()=>{
+// await TransactionModel.sync({alter:true});
 
+
+// })();
 
 export default TransactionModel;

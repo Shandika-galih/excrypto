@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import session from "express-session";
-<<<<<<< HEAD
 import dotenv from 'dotenv';
 import UserRoute from './routes/UserRoute.js';
 import ProductRoute from './routes/ProductRoute.js';  
@@ -17,21 +16,6 @@ import CryptoCoinNetworkRoute from './routes/CryptoCoinNetworkRoute.js';
 import CustomerCryptoCoinRoute from './routes/Customer/CryptoCoinRoute.js';
 
 import path from 'path';
-=======
-import dotenv from "dotenv";
-import UserRoute from "./routes/UserRoute.js";
-import ProductRoute from "./routes/ProductRoute.js";
-import db from "./config/Database.js";
-import AuthRoute from "./routes/AuthRoute.js";
-import SequelizeStore from "connect-session-sequelize";
-import CryptoRoute from "./routes/CryptoRoute.js";
-import CryptoCoinRoute from "./routes/CryptoCoinRoute.js";
-import TransactionRoute from "./routes/TransactionRoute.js";
-import BankRoute from "./routes/BankRoute.js";
-import PaymentMethodRoute from "./routes/PaymentMethodRoute.js";
-import CryptoCoinNetworkRoute from "./routes/CryptoCoinNetworkRoute.js";
-import path from "path";
->>>>>>> 0f2c012888ee9962667dca97d929acbf4df4ad0d
 
 dotenv.config();
 
@@ -40,13 +24,13 @@ const app = express();
 const sessionStore = SequelizeStore(session.Store);
 
 const store = new sessionStore({
-  db: db,
+  db:db
 });
 
-(async()=>{
-  await db.sync({alter:true});
+// (async()=>{
+//   await db.sync({force:true});
 
-})();
+// })();
 
 console.log(db.models);
 
@@ -84,15 +68,13 @@ app.use(TransactionRoute);
 app.use(BankRoute);
 app.use(PaymentMethodRoute);
 app.use(CryptoCoinNetworkRoute);
-<<<<<<< HEAD
 app.use(CustomerCryptoCoinRoute);
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-=======
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
->>>>>>> 0f2c012888ee9962667dca97d929acbf4df4ad0d
 
 // store.sync();
 
 app.listen(process.env.APP_PORT, () => {
   console.log("Server up and running");
 });
+
+
