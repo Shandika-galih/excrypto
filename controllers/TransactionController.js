@@ -1,3 +1,4 @@
+import { Model } from "sequelize";
 import TransactionModel from "../models/Transaction.js";
 import {
   createTransactionServiceQris,
@@ -6,6 +7,9 @@ import {
   getMyTransactionsService,
   getTransactionsAdminService,
 } from "../services/TransactionService.js";
+import CryptoCoinNetwork from "../models/CryptoCoinNetwork.js";
+import CryptoCoin from "../models/CryptoCoin.js";
+import Bank from "../models/Bank.js";
 
 export const getTransactions = async (req, res) => {
   try {
@@ -36,7 +40,7 @@ export const getTransactions = async (req, res) => {
 };
 
 export const getTransactionById = async (req, res) => {
-  const id = req.params.uuid;
+  const id = req.params.id;
   try {
     const transaction = await TransactionModel.findOne({
       attributes: [
@@ -55,6 +59,10 @@ export const getTransactionById = async (req, res) => {
       where: {
         uuid: id,
       },
+      include: [
+        {model : CryptoCoinNetwork, include : CryptoCoin},
+        Bank
+      ]
     });
     res.status(200).json({
       data: transaction,
@@ -129,7 +137,7 @@ export const calculateAdminFee = async (req, res) => {
 
 export const getMyTransactions = async (req, res) => {
   try {
-    const result = await getMyTransactionsService(req.userId);
+    const result = await getMyTransactionsService(req.session.userId);
     if (result.error) {
       return res.status(result.status).json({ msg: result.msg });
     }

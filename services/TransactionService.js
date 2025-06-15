@@ -213,8 +213,9 @@ export const getMyTransactionsService = async (userId) => {
   try {
     const user = await UserModel.findOne({
       where: {
-        id: userId,
+        uuid: userId,
       },
+      
     });
 
     if (!user) {
@@ -226,6 +227,15 @@ export const getMyTransactionsService = async (userId) => {
       where: {
         email_user: email_user,
       },
+      include: [
+        {
+          model: CryptoCoinNetwork,
+          include: CryptoCoin,
+        },
+        {
+          model: Bank,
+        },
+      ],
       order: [["createdAt", "DESC"]],
       limit: 5,
     });
