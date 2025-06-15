@@ -16,7 +16,7 @@ export const createTransactionServiceQris = async (req) => {
     total_pembayaran,
     payment_type_id,
     reciever_wallet_address,
-    coin_ammount
+    coin_amount,
   } = req.body;
   try {
     const bank = await Bank.findOne({
@@ -33,7 +33,7 @@ export const createTransactionServiceQris = async (req) => {
       total_pembayaran: total_pembayaran,
       payment_type_id: payment_type_id,
       reciever_wallet_address: reciever_wallet_address,
-      coin_ammount : coin_ammount
+      coin_amount: coin_amount,
     });
     if (!transaction) {
       throw new Error("Failed to create transactions");
@@ -105,35 +105,17 @@ const getTransactionStatus = async (url) => {
 
 const sendCryptoToReceiver = async (transaction) => {
   try {
-    const coinSymbol =
-      transaction.coin_network_id === 1
-        ? "bnb"
-        : transaction.coin_network_id === 2
-        ? "eth"
-        : "unknown";
-    const pricePerCoinInIDR = await getCryptoPrice(
-      [coinSymbol],
-      availableCoins
-    );
-    const totalPembayaranInIDR = transaction.total_pembayaran;
-
-    const amountToSend = calculateCryptoAmount(
-      totalPembayaranInIDR,
-      pricePerCoinInIDR[coinSymbol]
-    );
-
     const network = await CryptoCoinNetwork.findOne({
       where: { id: transaction.coin_network_id },
     });
-
     if (!network) throw new Error("Network not found");
 
     const provider = new ethers.JsonRpcProvider(network.rpc_url);
     const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
     const tx = await wallet.sendTransaction({
-      to: transaction.reciever_wallet_address, // Alamat penerima
-      value: ethers.parseUnits(amountToSend.toString(), "ether"),
+      to: transaction.reciever_wallet_address,
+      value: ethers.parseUnits(transaction.coin_amount.toString(), "ether"),
     });
 
     console.log(`Transaction sent with hash: ${tx.hash}`);
@@ -144,7 +126,6 @@ const sendCryptoToReceiver = async (transaction) => {
     });
 
     console.log("Transaction updated in the database successfully");
-
     return tx;
   } catch (err) {
     console.error("Failed to send crypto:", err.message);
@@ -168,25 +149,19 @@ export const verifyPaymentService = async (
       )
       .digest("hex");
 
-    if (expectedSignature != signature_key) {
-      const error = new Error("Invalid Signature key");
-      error.status = 400;
-      throw error;
+    if (expectedSignature !== signature_key) {
+      throw new Error("Invalid Signature key");
     }
 
-    let transaction = await TransactionModel.findOne({
-      where: {
-        uuid: order_id,
-      },
+    const transaction = await TransactionModel.findOne({
+      where: { uuid: order_id },
     });
-
     if (!transaction) {
-      const error = new Error(`Transaction with id ${order_id} not found`);
-      error.status = 400;
-      throw error;
+      throw new Error(`Transaction with id ${order_id} not found`);
     }
-    console.log("Transaction status:", transaction_status);
+
     if (transaction_status === "settlement") {
+      status = "paid";
       console.log("Transaction is paid. Proceeding with sending crypto.");
       try {
         await sendCryptoToReceiver(transaction);
@@ -198,29 +173,11 @@ export const verifyPaymentService = async (
     }
 
     transaction.status = status;
+    await transaction.save();
 
-    transaction = await transaction.save();
     return { message: `Success` };
   } catch (error) {
     throw error;
-  }
-};
-
-export const getTransactionById = async (uuid) => {
-  try {
-    const transaction = await TransactionModel.findOne({
-      where: {
-        uuid: uuid,
-      },
-    });
-
-    if (!transaction) {
-      let error = new Error(`Transaction with id ${uuid} not found`);
-      error.status = 404;
-      throw error;
-    }
-  } catch (err) {
-    throw err;
   }
 };
 
