@@ -20,7 +20,8 @@ import BankRoute from "./routes/BankRoute.js";
 import PaymentMethodRoute from "./routes/PaymentMethodRoute.js";
 import CryptoCoinNetworkRoute from "./routes/CryptoCoinNetworkRoute.js";
 import CustomerCryptoCoinRoute from './routes/Customer/CryptoCoinRoute.js';
-import ChatRoutes from './routes/ChatRoutes.js'
+import ChatRoutes from './routes/ChatRoutes.js';
+import ProfileRoute from './routes/Customer/ProfileRoute.js';
 
 dotenv.config();
 
@@ -75,6 +76,7 @@ app.use(PaymentMethodRoute);
 app.use(CryptoCoinNetworkRoute);
 app.use("/api/chat", ChatRoutes);
 app.use(CustomerCryptoCoinRoute);
+app.use(ProfileRoute);
 
 
 io.on("connection", (socket) => {

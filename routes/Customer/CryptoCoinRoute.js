@@ -3,7 +3,7 @@ import express from 'express';
 
 const router = express.Router();
 
-router.get('/customer/cryptocoins', CustomerCryptoCoinController.getCryptoCoin);
+router.get('/customer/cryptocoins',CustomerCryptoCoinController.getCryptoCoin);
 
 
 export default router;

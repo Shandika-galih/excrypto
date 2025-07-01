@@ -51,10 +51,13 @@ export const getTransactionById = async (req, res) => {
         "total_pembayaran",
         "status",
         "payment_type_id",
+        'coin_amount',
         "va_account",
         "qris_link",
         "expiry_time",
         "reciever_wallet_address",
+        "updatedAt",
+        "createdAt"
       ],
       where: {
         uuid: id,
