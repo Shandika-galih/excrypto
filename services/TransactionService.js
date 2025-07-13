@@ -8,8 +8,9 @@ import CryptoCoin from "../models/CryptoCoin.js";
 import { getCryptoPrice } from "../services/cryptoService.js";
 import { stat } from "fs";
 import { Op } from "sequelize";
+import PaymentMethod from "../models/PaymentMethod.js";
 
-export const createTransactionServiceQris = async (req) => {
+export const createTransactionServiceMidtrans = async (req) => {
   const {
     email_user,
     coin_network_id,
@@ -18,36 +19,52 @@ export const createTransactionServiceQris = async (req) => {
     reciever_wallet_address,
     coin_amount,
   } = req.body;
+
   try {
     const bank = await Bank.findOne({
-      where: {
-        id: payment_type_id,
+      where: { id: payment_type_id },
+      include: {
+        model: PaymentMethod,
+        as: "PaymentMethod",
       },
     });
 
-    if (!bank) throw new Error("Payment method do not support");
+    if (!bank || !bank.PaymentMethod) {
+      throw new Error("Payment method not supported or not found");
+    }
 
     const transaction = await TransactionModel.create({
-      email_user: email_user,
-      coin_network_id: coin_network_id,
-      total_pembayaran: total_pembayaran,
-      payment_type_id: payment_type_id,
-      reciever_wallet_address: reciever_wallet_address,
-      coin_amount: coin_amount,
+      email_user,
+      coin_network_id,
+      total_pembayaran,
+      payment_type_id,
+      reciever_wallet_address,
+      coin_amount,
     });
-    if (!transaction) {
-      throw new Error("Failed to create transactions");
+
+    let paymentPayload = {
+      transaction_details: {
+        order_id: transaction.uuid,
+        gross_amount: transaction.total_pembayaran,
+      },
+    };
+
+    const methodName = bank.PaymentMethod.name;
+
+    if (methodName === "gopay") {
+      paymentPayload.payment_type = "gopay";
+    } else if (methodName === "bank_transfer") {
+      paymentPayload.payment_type = "bank_transfer";
+      paymentPayload.bank_transfer = {
+        bank: bank.name.toLowerCase(),
+      };
+    } else {
+      throw new Error("Unsupported payment type");
     }
 
     const response = await axios.post(
       process.env.MIDTRANS_ENDPOINT,
-      {
-        payment_type: "gopay",
-        transaction_details: {
-          order_id: transaction.uuid,
-          gross_amount: transaction.total_pembayaran,
-        },
-      },
+      paymentPayload,
       {
         headers: {
           Authorization: `Basic ${Buffer.from(
@@ -60,29 +77,35 @@ export const createTransactionServiceQris = async (req) => {
     );
 
     if (response.status === 201 || response.status === 200) {
-      const actions = response.data.actions;
-      let actionsMap = {};
-      actions.forEach((action, index) => {
-        actionsMap[action["name"]] = action["url"];
-      });
+      if (methodName === "gopay") {
+        const actions = response.data.actions;
+        const actionsMap = {};
+        actions.forEach((action) => {
+          actionsMap[action.name] = action.url;
+        });
+        transaction.qris_link = actionsMap["generate-qr-code"];
+        transaction.expiry_time = response.data.expiry_time;
+      } else if (methodName === "bank_transfer") {
+        const va_number = response.data.va_numbers?.[0]?.va_number;
+        transaction.va_account = va_number;
+        transaction.expiry_time = response.data.expiry_time;
+      }
 
-      const transactionStatus = await getTransactionStatus(
-        actionsMap["get-status"]
-      );
-
-      transaction.expiry_time = transactionStatus.expiry_time;
-      transaction.qris_link = actionsMap["generate-qr-code"];
       transaction.midtrans_ct_response = response.data;
-
       await transaction.save();
     }
+
     return {
-      transaction: transaction,
+      transaction,
       midtrans_res: response.data,
     };
   } catch (error) {
     throw error;
   }
+};
+
+export default {
+  createTransactionServiceMidtrans,
 };
 
 const getTransactionStatus = async (url) => {
@@ -215,7 +238,6 @@ export const getMyTransactionsService = async (userId) => {
       where: {
         uuid: userId,
       },
-      
     });
 
     if (!user) {

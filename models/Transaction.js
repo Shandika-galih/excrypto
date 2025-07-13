@@ -60,7 +60,6 @@ const TransactionModel = db.define(
     va_account: {
       type: DataTypes.STRING,
       allowNull: true,
-      unique: true,
     },
     qris_link: {
       type: DataTypes.STRING,
@@ -75,7 +74,7 @@ const TransactionModel = db.define(
       },
     },
     blockchain_tx_hash: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(100),
       allowNull: true,
     },
     reciever_wallet_address: {
@@ -88,6 +87,11 @@ const TransactionModel = db.define(
     midtrans_ct_response: {
       type: DataTypes.JSON,
       allowNull: true,
+    },
+    payment_provider: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "midtrans",
     },
   },
   {
@@ -115,10 +119,8 @@ TransactionModel.belongsTo(Bank, {
   onUpdate: "CASCADE",
 });
 
-
 // (async()=>{
 // await TransactionModel.sync({alter:true});
-
 
 // })();
 

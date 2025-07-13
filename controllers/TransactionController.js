@@ -1,7 +1,6 @@
-import { Model } from "sequelize";
 import TransactionModel from "../models/Transaction.js";
 import {
-  createTransactionServiceQris,
+  createTransactionServiceMidtrans,
   verifyPaymentService,
   calculateAdminFeeService,
   getMyTransactionsService,
@@ -11,6 +10,7 @@ import CryptoCoinNetwork from "../models/CryptoCoinNetwork.js";
 import CryptoCoin from "../models/CryptoCoin.js";
 import Bank from "../models/Bank.js";
 
+// GET ALL
 export const getTransactions = async (req, res) => {
   try {
     const transaction = await TransactionModel.findAll({
@@ -28,9 +28,7 @@ export const getTransactions = async (req, res) => {
         "reciever_wallet_address",
       ],
     });
-    res.status(200).json({
-      data: transaction,
-    });
+    res.status(200).json({ data: transaction });
   } catch (error) {
     res.status(error.status || 500).json({
       msg: "Internal server error",
@@ -39,6 +37,7 @@ export const getTransactions = async (req, res) => {
   }
 };
 
+// GET BY ID
 export const getTransactionById = async (req, res) => {
   const id = req.params.id;
   try {
@@ -51,25 +50,18 @@ export const getTransactionById = async (req, res) => {
         "total_pembayaran",
         "status",
         "payment_type_id",
-        'coin_amount',
+        "coin_amount",
         "va_account",
         "qris_link",
         "expiry_time",
         "reciever_wallet_address",
         "updatedAt",
-        "createdAt"
+        "createdAt",
       ],
-      where: {
-        uuid: id,
-      },
-      include: [
-        {model : CryptoCoinNetwork, include : CryptoCoin},
-        Bank
-      ]
+      where: { uuid: id },
+      include: [{ model: CryptoCoinNetwork, include: CryptoCoin }, Bank],
     });
-    res.status(200).json({
-      data: transaction,
-    });
+    res.status(200).json({ data: transaction });
   } catch (err) {
     res.status(err.status || 500).json({
       msg: "Internal server error",
@@ -78,10 +70,10 @@ export const getTransactionById = async (req, res) => {
   }
 };
 
+// CREATE TRANSACTION
 export const createTransaction = async (req, res) => {
   try {
-    const transaction = await createTransactionServiceQris(req);
-
+    const transaction = await createTransactionServiceMidtrans(req);
     res.status(201).json({
       msg: "Transaction successfully created",
       data: transaction,
@@ -94,6 +86,7 @@ export const createTransaction = async (req, res) => {
   }
 };
 
+// VERIFY PAYMENT (MIDTRANS CALLBACK)
 export const verifyPayment = async (req, res) => {
   const {
     order_id,
@@ -104,14 +97,13 @@ export const verifyPayment = async (req, res) => {
   } = req.body;
 
   try {
-    var data = await verifyPaymentService(
+    const data = await verifyPaymentService(
       order_id,
       status_code,
       gross_amount,
       transaction_status,
       signature_key
     );
-
     res.status(200).json(data);
   } catch (err) {
     res.status(err.status || 500).json({
@@ -121,11 +113,11 @@ export const verifyPayment = async (req, res) => {
   }
 };
 
+// ADMIN FEE DETAIL
 export const calculateAdminFee = async (req, res) => {
   const { transactionId } = req.params;
   try {
     const adminFee = await calculateAdminFeeService(transactionId);
-
     res.status(201).json({
       msg: "Transaction successfully created",
       data: adminFee,
@@ -138,15 +130,14 @@ export const calculateAdminFee = async (req, res) => {
   }
 };
 
+// MY TRANSACTIONS (LIMITED)
 export const getMyTransactions = async (req, res) => {
   try {
     const result = await getMyTransactionsService(req.session.userId);
     if (result.error) {
       return res.status(result.status).json({ msg: result.msg });
     }
-    res.status(200).json({
-      data: result.data,
-    });
+    res.status(200).json({ data: result.data });
   } catch (error) {
     console.error("Error fetching transactions:", error.message);
     res.status(500).json({
@@ -156,6 +147,7 @@ export const getMyTransactions = async (req, res) => {
   }
 };
 
+// ADMIN PAGINATED
 export const getTransactionsAdmin = async (req, res) => {
   try {
     const result = await getTransactionsAdminService(req.query);

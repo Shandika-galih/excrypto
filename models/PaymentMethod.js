@@ -27,10 +27,4 @@ const PaymentMethod = db.define(
   { tableName: "payment_method_tbl" }
 );
 
-Bank.belongsTo(PaymentMethod, {
-  foreignKey: "payment_method_id",
-  onDelete: "CASCADE",
-  onUpdate: "CASCADE",
-});
-
 export default PaymentMethod;

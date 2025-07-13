@@ -8,7 +8,11 @@ export const Login = async (req, res) => {
     },
   });
   if (!user) return res.status(404).json({ msg: "User tidak ditemukan" });
-
+  if (!user.is_verified) {
+    return res.status(403).json({
+      msg: "Akun belum diverifikasi. Silakan cek email Anda untuk verifikasi.",
+    });
+  }
   const match = await argon2.verify(user.password, req.body.password);
   if (!match) return res.status(400).json({ msg: "Wrong Password" });
   req.session.userId = user.uuid;
