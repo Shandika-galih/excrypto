@@ -9,6 +9,7 @@ import { getCryptoPrice } from "../services/cryptoService.js";
 import { stat } from "fs";
 import { Op } from "sequelize";
 import PaymentMethod from "../models/PaymentMethod.js";
+import { ethers } from "ethers";
 
 export const createTransactionServiceMidtrans = async (req) => {
   const {

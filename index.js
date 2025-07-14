@@ -87,6 +87,13 @@ app.use(
       "https://admin.instacrypto.shop",
       "https://api.sandbox.midtrans.com",
       "https://api.midtrans.com",
+	"https://api.sandbox.midtrans.com",
+	"https://app.sandbox.midtrans.com",
+	"https://api.sandbox.veritrans.co.id",
+	"https://simulator.sandbox.midtrans.com",
+	"https://api.midtrans.com",
+	"https://app.midtrans.com",
+	"https://api.veritrans.co.id",
     ],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
